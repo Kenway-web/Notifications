@@ -1,6 +1,6 @@
 package com.example.notifcationdemo
 
-import android.app.Notification
+
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -11,6 +11,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
+import androidx.core.app.RemoteInput
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -21,6 +22,12 @@ class MainActivity : AppCompatActivity() {
     // defining notification manager instance , require for notification instance
 
     private var notificationManager: NotificationManager? = null
+
+    private val KEY_REPLY="key_reply" // this key will be used to received the user input
+
+
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +57,24 @@ class MainActivity : AppCompatActivity() {
 
         )
 
-        // action Button
+        // reply button
+        // remote input instance , with reply key and reply label
+
+        val remoteInput:RemoteInput = RemoteInput.Builder(KEY_REPLY).run {
+                // need to give the reply label text input field will displayed as hint
+          setLabel("Insert you name here")
+            build()
+        }
+
+        val replyAction:NotificationCompat.Action= NotificationCompat.Action.Builder(
+            0,
+                "Reply",
+            pendingIntent
+        ).addRemoteInput(remoteInput)
+            .build()
+
+
+        // action Button1
 
         val intent3 = Intent(this, SettingsActivity::class.java)
         val pendingIntent3: PendingIntent = PendingIntent.getActivity(
@@ -85,9 +109,9 @@ class MainActivity : AppCompatActivity() {
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(pendingIntent) // setting intent
             .addAction(action2)
             .addAction(action3)
+            .addAction(replyAction)
             .build()
         notificationManager?.notify(notificationId, notification)
 
